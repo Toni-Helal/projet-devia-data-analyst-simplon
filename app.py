@@ -1,10 +1,48 @@
-import plotly.express as px
 import pandas as pd
+import plotly.express as px
 
-données = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSC4KusfFzvOsr8WJRgozzsCxrELW4G4PopUkiDbvrrV2lg0S19-zeryp02MC9WYSVBuzGCUtn8ucZW/pub?output=csv')
+# Charger les données
+url = "URL_DU_FICHIER_CSV"
+df = pd.read_csv("ventes.csv")
 
-figure = px.pie(données, values='qte', names='region', title='quantité vendue par région')
+# ---------
+# Volume des ventes par produit
+# ---------
+volume_par_produit = (
+    df
+    .groupby("produit")["qte"]
+    .sum()
+    .reset_index()
+)
 
-figure.write_html('ventes-par-region.html')
+fig_volume = px.bar(
+    volume_par_produit,
+    x="produit",
+    y="qte",
+    title="Volume des ventes par produit"
+)
 
-print('ventes-par-région.html généré avec succès !')
+fig_volume.write_html("volume-par-produit.html")
+
+# ---------
+# Chiffre d'affaires par produit
+# ---------
+df["chiffre_affaires"] = df["prix"] * df["qte"]
+
+ca_par_produit = (
+    df
+    .groupby("produit")["chiffre_affaires"]
+    .sum()
+    .reset_index()
+)
+
+fig_ca = px.bar(
+    ca_par_produit,
+    x="produit",
+    y="chiffre_affaires",
+    title="Chiffre d’affaires par produit"
+)
+
+fig_ca.write_html("ca-par-produit.html")
+
+print("Graphiques générés avec succès.")
