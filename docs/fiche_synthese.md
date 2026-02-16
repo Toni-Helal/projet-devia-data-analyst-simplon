@@ -17,6 +17,3 @@
 ### 3.c Ventes par région
 - Top région (CA): Région X – XXX
 - Top région (volume): Région Y – XXX
-
-## Interprétation rapide
-- 2–4 نقاط واضحة جدًا (مثال: منتج يجيب CA عالي لأن السعر أعلى، منطقة تشتري كمية أكبر، إلخ)
