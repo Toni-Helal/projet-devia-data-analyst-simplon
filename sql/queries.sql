@@ -4,14 +4,17 @@ FROM ventes;
 
 -- 3.b Ventes par produit (volume + CA)
 SELECT
-  'Produit A' AS produit,
+  produit,
   SUM(qte) AS volume_total,
   SUM(prix * qte) AS chiffre_affaires,
   ROUND(
     (SUM(qte) * 100.0) / (SELECT SUM(qte) FROM ventes),
-  2) AS pourcentage_volume_total
+    2
+  ) AS pourcentage_volume_total
 FROM ventes
-WHERE produit = 'Produit A';
+WHERE produit IN ('Produit A', 'Produit B', 'Produit C')
+GROUP BY produit;
+
 
 -- 3.c Ventes par région (volume + CA)
 SELECT
