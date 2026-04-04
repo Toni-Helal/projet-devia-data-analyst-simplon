@@ -1,3 +1,7 @@
 pandas
+<<<<<<< HEAD
 plotly
 streamlit
+=======
+plotly
+>>>>>>> origin/main
