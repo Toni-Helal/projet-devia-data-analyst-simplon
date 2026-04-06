@@ -21,6 +21,7 @@ from sales_dashboard.reporting import (
     build_daily_trend_chart,
     build_revenue_by_product_chart,
     build_revenue_by_region_chart,
+    build_rolling_trend_chart,
     build_volume_by_product_chart,
     dataframe_to_csv_bytes,
     format_currency,
@@ -57,7 +58,13 @@ def main() -> None:
     kpis = calculate_kpis(filtered)
     render_overview(kpis)
     render_analysis_tables(filtered)
-    render_charts(filtered)
+
+    tab_charts, tab_trends = st.tabs(["Visualisations", "Tendances"])
+    with tab_charts:
+        render_charts(filtered)
+    with tab_trends:
+        render_trends(filtered)
+
     render_detailed_table(filtered)
 
 
@@ -104,11 +111,12 @@ def render_filters(dataframe):
 
 def render_overview(kpis) -> None:
     st.subheader("Vue d'ensemble")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Chiffre d'affaires", format_currency(kpis["chiffre_affaires_total"]))
     col2.metric("Quantité vendue", format_number(kpis["qte_total"]))
     col3.metric("Produits actifs", str(kpis["nb_produits"]))
     col4.metric("Régions actives", str(kpis["nb_regions"]))
+    col5.metric("Produit leader", kpis["top_produit"] or "–")
 
     st.caption(
         f"Période filtrée: {kpis['date_debut']} -> {kpis['date_fin']} | "
@@ -137,6 +145,11 @@ def render_charts(dataframe) -> None:
         build_revenue_by_region_chart(dataframe), use_container_width=True
     )
     bottom_right.plotly_chart(build_daily_trend_chart(dataframe), use_container_width=True)
+
+
+def render_trends(dataframe) -> None:
+    window = st.slider("Fenêtre de moyenne mobile (jours)", min_value=3, max_value=14, value=7)
+    st.plotly_chart(build_rolling_trend_chart(dataframe, window=window), use_container_width=True)
 
 
 def render_detailed_table(dataframe) -> None:
