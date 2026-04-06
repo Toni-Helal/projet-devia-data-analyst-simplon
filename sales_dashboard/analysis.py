@@ -98,7 +98,11 @@ def calculate_kpis(dataframe: pd.DataFrame) -> Mapping[str, object]:
             "nb_transactions": 0,
             "date_debut": None,
             "date_fin": None,
+            "top_produit": None,
         }
+
+    ca_by_product = dataframe.groupby("produit")["chiffre_affaires"].sum()
+    top_produit = str(ca_by_product.idxmax())
 
     return {
         "chiffre_affaires_total": float(dataframe["chiffre_affaires"].sum()),
@@ -108,6 +112,7 @@ def calculate_kpis(dataframe: pd.DataFrame) -> Mapping[str, object]:
         "nb_transactions": int(len(dataframe)),
         "date_debut": dataframe["date"].min().date(),
         "date_fin": dataframe["date"].max().date(),
+        "top_produit": top_produit,
     }
 
 
@@ -135,6 +140,22 @@ def daily_trend(dataframe: pd.DataFrame) -> pd.DataFrame:
         .sort_values("date")
     )
     return grouped.reset_index(drop=True)
+
+
+def rolling_trend(dataframe: pd.DataFrame, window: int = 7) -> pd.DataFrame:
+    """Return daily totals with a rolling average over `window` days."""
+    if dataframe.empty:
+        return pd.DataFrame(columns=["date", "qte", "chiffre_affaires", "ca_rolling", "qte_rolling"])
+
+    grouped = (
+        dataframe.groupby("date", as_index=False)[["qte", "chiffre_affaires"]]
+        .sum()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+    grouped["ca_rolling"] = grouped["chiffre_affaires"].rolling(window, min_periods=1).mean()
+    grouped["qte_rolling"] = grouped["qte"].rolling(window, min_periods=1).mean()
+    return grouped
 
 
 def _aggregate_dimension(dataframe: pd.DataFrame, dimension: str) -> pd.DataFrame:

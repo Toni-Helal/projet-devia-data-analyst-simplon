@@ -13,6 +13,7 @@ from .analysis import (
     aggregate_by_region,
     calculate_kpis,
     daily_trend,
+    rolling_trend,
 )
 
 CHART_TEMPLATE = "plotly_white"
@@ -99,6 +100,39 @@ def build_daily_trend_chart(dataframe: pd.DataFrame) -> go.Figure:
     fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Quantité", secondary_y=False)
     fig.update_yaxes(title_text="Chiffre d'affaires", secondary_y=True)
+    return fig
+
+
+def build_rolling_trend_chart(dataframe: pd.DataFrame, window: int = 7) -> go.Figure:
+    grouped = rolling_trend(dataframe, window=window)
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=grouped["date"],
+            y=grouped["chiffre_affaires"],
+            name="CA journalier",
+            mode="lines+markers",
+            line={"color": PRIMARY_COLOR, "width": 1, "dash": "dot"},
+            opacity=0.5,
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=grouped["date"],
+            y=grouped["ca_rolling"],
+            name=f"Moy. mobile {window}j (CA)",
+            mode="lines",
+            line={"color": HIGHLIGHT_COLOR, "width": 3},
+        )
+    )
+    fig.update_layout(
+        template=CHART_TEMPLATE,
+        title=f"Moyenne mobile {window} jours – Chiffre d'affaires",
+        legend_title_text="Indicateurs",
+        margin={"l": 10, "r": 10, "t": 60, "b": 10},
+    )
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Chiffre d'affaires")
     return fig
 
 

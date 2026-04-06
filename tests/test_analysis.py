@@ -14,6 +14,7 @@ from sales_dashboard.analysis import (
     calculate_kpis,
     daily_trend,
     load_sales_data,
+    rolling_trend,
 )
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -29,11 +30,12 @@ class SalesAnalysisTests(unittest.TestCase):
     def test_valid_dataset_produces_expected_global_metrics(self):
         kpis = calculate_kpis(self.dataframe)
 
-        self.assertEqual(kpis["chiffre_affaires_total"], 44825.0)
-        self.assertEqual(kpis["qte_total"], 3380.0)
-        self.assertEqual(kpis["nb_produits"], 3)
-        self.assertEqual(kpis["nb_regions"], 2)
-        self.assertEqual(kpis["nb_transactions"], 39)
+        self.assertEqual(kpis["chiffre_affaires_total"], 125850.0)
+        self.assertEqual(kpis["qte_total"], 8700.0)
+        self.assertEqual(kpis["nb_produits"], 4)
+        self.assertEqual(kpis["nb_regions"], 3)
+        self.assertEqual(kpis["nb_transactions"], 99)
+        self.assertIsNotNone(kpis["top_produit"])
 
     def test_missing_required_column_raises_explicit_error(self):
         with self.assertRaisesRegex(DataValidationError, "Colonnes manquantes: region"):
@@ -131,6 +133,35 @@ class SalesAnalysisTests(unittest.TestCase):
         self.assertEqual(region_rows[0][0], python_regions.iloc[0]["label"])
         self.assertEqual(region_rows[0][1], python_regions.iloc[0]["qte"])
         self.assertEqual(region_rows[0][2], python_regions.iloc[0]["chiffre_affaires"])
+
+    def test_new_products_and_regions_present(self):
+        products = set(self.dataframe["produit"].unique())
+        regions = set(self.dataframe["region"].unique())
+
+        self.assertIn("Produit D", products)
+        self.assertIn("Est", regions)
+
+    def test_empty_filter_returns_empty_kpis(self):
+        empty = apply_filters(self.dataframe, products=[])
+        kpis = calculate_kpis(empty)
+
+        self.assertTrue(empty.empty)
+        self.assertEqual(kpis["chiffre_affaires_total"], 0.0)
+        self.assertEqual(kpis["nb_transactions"], 0)
+        self.assertIsNone(kpis["top_produit"])
+
+    def test_rolling_trend_columns_present(self):
+        result = rolling_trend(self.dataframe, window=7)
+
+        self.assertIn("ca_rolling", result.columns)
+        self.assertIn("qte_rolling", result.columns)
+        self.assertEqual(len(result), self.dataframe["date"].nunique())
+
+    def test_rolling_trend_empty_dataframe(self):
+        empty = apply_filters(self.dataframe, products=[])
+        result = rolling_trend(empty, window=7)
+
+        self.assertTrue(result.empty)
 
     def _load_temporary_csv(self, rows):
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", suffix=".csv") as handle:
