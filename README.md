@@ -57,3 +57,89 @@ Prenez le temps de lire, d'analyser voir même de bidouiller le fichier "app.py"
 # Publier vos modifications sur votre propre dépôt GitHub
 Une fois que vous avez terminé de travailler sur les consignes du projet et que vous souhaitez publier vos modifications dans votre dépôt, vous devrez suivre les étapes décrites dans la section « Validation (commit) de vos modifications » de [cette ressource](https://docs.github.com/fr/codespaces/developing-in-a-codespace/using-source-control-in-your-codespace#validation-commit-de-vos-modifications
 ).
+
+---
+
+# Résultats du projet
+
+## Objectif
+
+Ce projet analyse les ventes d’une PME à partir d’un fichier CSV contenant 39 lignes de ventes réalisées sur une période de 20 jours.
+
+L’analyse a été réalisée avec :
+
+- SQL pour interroger et agréger les données ;
+- Pandas pour charger et préparer les données ;
+- Plotly pour créer les graphiques interactifs.
+
+## Résultats principaux
+
+### Chiffre d’affaires total
+
+**44 825 €**
+
+### Ventes par produit
+
+| Produit | Quantité vendue | Chiffre d’affaires |
+|---|---:|---:|
+| A | 1 750 | 17 500 € |
+| B | 1 055 | 15 825 € |
+| C | 575   | 11 500 € |
+| **Total** | **3 380** | **44 825 €** |
+
+### Ventes par région
+
+| Région | Quantité vendue |
+|---|---:|
+| Sud | 1 775 |
+| Nord | 1 605 |
+| **Total** | **3 380** |
+
+## Graphiques générés
+
+Le programme Python génère les fichiers suivants :
+
+- `ventes-par-produit.html` : quantité vendue par produit ;
+- `chiffre-affaires-par-produit.html` : chiffre d’affaires par produit ;
+- `ventes-par-region.html` : quantité vendue par région.
+
+## Structure du projet
+
+```text
+.
+├── app.py
+├── requirements.txt
+├── ventes-par-produit.html
+├── chiffre-affaires-par-produit.html
+├── ventes-par-region.html
+├── docs/
+│   └── fiche_synthese.md
+└── sql/
+    └── requetes_ventes.sql
+```
+
+## Installation
+
+Installer les dépendances :
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+## Exécution
+
+Lancer le programme :
+
+```bash
+python3 app.py
+```
+
+Les graphiques HTML sont ensuite générés à la racine du projet.
+
+## Conclusion
+
+Le produit A est le produit le plus vendu et génère le chiffre d’affaires le plus élevé.
+
+Le produit C est vendu en plus faible quantité, mais son prix unitaire plus élevé lui permet de conserver une contribution importante au chiffre d’affaires.
+
+Les ventes sont relativement équilibrées entre les régions Nord et Sud, avec une légère avance pour la région Sud.
